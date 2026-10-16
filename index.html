@@ -267,6 +267,7 @@ footer .ie b { color: #0055cc; font-family: "Times New Roman", serif; font-size:
         <div class="box-title">:: Updates ::</div>
         <div class="box-body" style="overflow-x:auto">
           <table class="updates">
+            <tr><td>17.10.03</td><td>REAL MP3s in the Winamp now!!! 9 songs, click play (56k ppl sorry)</td></tr>
             <tr><td>14.10.03</td><td>added Winamp player 2 the main page. click play!!</td></tr>
             <tr><td>02.10.03</td><td>new poll! vote 4 the best game evar</td></tr>
             <tr><td>21.09.03</td><td>fixed the guestbook (sorry 2 everyone who lost their msg)</td></tr>
@@ -285,7 +286,7 @@ footer .ie b { color: #0055cc; font-family: "Times New Roman", serif; font-size:
                 <div class="time" id="time">0:00</div>
                 <div class="viz" id="viz" aria-hidden="true"></div>
               </div>
-              <div class="screen" style="margin-top:0"><div class="song"><marquee id="song" scrollamount="3">1. Linkin Park - Numb (3:07) ***</marquee></div></div>
+              <div class="screen" style="margin-top:0"><div class="song"><marquee id="song" scrollamount="3">1. Muse - Hysteria ***</marquee></div></div>
               <div class="btns">
                 <button id="prev" aria-label="Previous track">|◀</button>
                 <button id="play" aria-label="Play">▶</button>
@@ -402,57 +403,66 @@ footer .ie b { color: #0055cc; font-family: "Times New Roman", serif; font-size:
 // Winamp
 (function () {
   const songs = [
-    ['Linkin Park - Numb', 187], ['t.A.T.u. - All The Things She Said', 214], ['Eminem - Lose Yourself', 326],
-    ['Evanescence - Bring Me To Life', 236], ['Darude - Sandstorm', 225], ['Nickelback - How You Remind Me', 223]
-  ];
+    'Muse - Hysteria', 'The Killers - Mr. Brightside', 'Linkin Park - Somewhere I Belong',
+    'Evanescence - Bring Me To Life', 'Green Day - American Idiot', 'The White Stripes - The Hardest Button to Button',
+    'Yellowcard - Way Away', "Lustra - Scotty Doesn't Know", 'Linkin Park - Breaking the Habit'
+  ].map((name, i) => ({ name, src: 'music/track' + (i + 1) + '.mp3', dur: 0 }));
   const pl = document.getElementById('playlist'), viz = document.getElementById('viz'),
         time = document.getElementById('time'), song = document.getElementById('song');
   const bars = Array.from({ length: 16 }, () => { const i = document.createElement('i'); viz.appendChild(i); return i; });
-  let cur = 0, sec = 0, timer = null, ctx = null, osc = null, gain = null;
-  const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  const audio = new Audio();
+  audio.preload = 'metadata';
+  let cur = 0, ctx = null, analyser = null, freq = null;
+  const fmt = s => { s = Math.floor(s || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const durText = s => s.dur ? ' (' + fmt(s.dur) + ')' : '';
   function render() {
-    pl.innerHTML = songs.map((s, i) => '<li class="' + (i === cur ? 'on' : '') + '" data-i="' + i + '">' + (i + 1) + '. ' + s[0] + ' (' + fmt(s[1]) + ')</li>').join('');
-    song.textContent = (cur + 1) + '. ' + songs[cur][0] + ' (' + fmt(songs[cur][1]) + ') ***';
-    time.textContent = fmt(sec);
+    pl.innerHTML = songs.map((s, i) => '<li class="' + (i === cur ? 'on' : '') + '" data-i="' + i + '">' + (i + 1) + '. ' + s.name + durText(s) + '</li>').join('');
+    song.textContent = (cur + 1) + '. ' + songs[cur].name + durText(songs[cur]) + ' ***';
+    time.textContent = fmt(audio.currentTime);
   }
-  // A tiny chiptune so "play" actually plays something
-  const notes = [262, 330, 392, 523, 392, 330, 294, 349, 440, 349];
-  function beep(step) {
-    if (!ctx) return;
-    osc.frequency.setValueAtTime(notes[(step + cur * 3) % notes.length], ctx.currentTime);
+  // Read each track's length in the background so the playlist shows real times
+  songs.forEach(s => {
+    const a = new Audio(); a.preload = 'metadata';
+    a.onloadedmetadata = () => { s.dur = a.duration; render(); a.src = ''; };
+    a.src = s.src;
+  });
+  function load(i, autoplay) {
+    cur = (i + songs.length) % songs.length;
+    audio.src = songs[cur].src;
+    render();
+    if (autoplay) play();
   }
-  let step = 0;
-  function tick() {
-    sec++; if (sec >= songs[cur][1]) { cur = (cur + 1) % songs.length; sec = 0; render(); }
-    time.textContent = fmt(sec);
+  function play() {
+    try {
+      if (!ctx) {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = ctx.createAnalyser(); analyser.fftSize = 64;
+        ctx.createMediaElementSource(audio).connect(analyser);
+        analyser.connect(ctx.destination);
+        freq = new Uint8Array(analyser.frequencyBinCount);
+      }
+      ctx.resume();
+    } catch (e) {}
+    audio.play().catch(() => {});
   }
   function animate() {
-    bars.forEach(b => b.style.height = (timer ? 15 + Math.random() * 85 : 10) + '%');
-    if (timer) { beep(step++); }
+    if (analyser && !audio.paused) {
+      analyser.getByteFrequencyData(freq);
+      bars.forEach((b, i) => b.style.height = Math.max(6, freq[i + 1] / 255 * 100) + '%');
+    } else {
+      bars.forEach(b => b.style.height = '6%');
+    }
+    requestAnimationFrame(animate);
   }
-  setInterval(animate, 150);
-  function play() {
-    if (timer) return;
-    timer = setInterval(tick, 1000);
-    try {
-      ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
-      ctx.resume();
-      osc = ctx.createOscillator(); gain = ctx.createGain();
-      osc.type = 'square'; gain.gain.value = 0.03;
-      osc.connect(gain).connect(ctx.destination); osc.start();
-    } catch (e) {}
-  }
-  function pause() {
-    clearInterval(timer); timer = null;
-    try { osc && osc.stop(); } catch (e) {}
-    osc = null;
-  }
+  animate();
+  audio.ontimeupdate = () => { time.textContent = fmt(audio.currentTime); };
+  audio.onended = () => load(cur + 1, true);
   document.getElementById('play').onclick = play;
-  document.getElementById('pause').onclick = pause;
-  document.getElementById('next').onclick = () => { cur = (cur + 1) % songs.length; sec = 0; render(); };
-  document.getElementById('prev').onclick = () => { cur = (cur + songs.length - 1) % songs.length; sec = 0; render(); };
-  pl.onclick = e => { const li = e.target.closest('li'); if (li) { cur = +li.dataset.i; sec = 0; render(); } };
-  render();
+  document.getElementById('pause').onclick = () => audio.pause();
+  document.getElementById('next').onclick = () => load(cur + 1, !audio.paused);
+  document.getElementById('prev').onclick = () => load(cur - 1, !audio.paused);
+  pl.onclick = e => { const li = e.target.closest('li'); if (li) load(+li.dataset.i, true); };
+  load(0, false);
 })();
 
 // Poll
