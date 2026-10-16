@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dimka's Zone 3000</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Comic+Neue:wght@400;700&family=VT323&display=swap">
+<style>
+/* Layout: a 2003 table-layout homepage — left nav column, center content, starfield behind, all inside one bevelled 760px box */
+:root {
+  color-scheme: dark;
+  --space: #000033;
+  --panel: #000066;
+  --panel-2: #0a0a4a;
+  --bevel-hi: #9999ff;
+  --bevel-lo: #000011;
+  --text: #ffffff;
+  --link: #00ffff;
+  --visited: #ff66ff;
+  --hot: #ffff00;
+  --lime: #33ff33;
+  --red: #ff3333;
+  --display: "Impact", "Anton", "Arial Black", sans-serif;
+  --body: "Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive;
+  --ui: "Verdana", "Tahoma", "Geneva", sans-serif;
+  --mono: "VT323", "Courier New", monospace;
+}
+html { background: var(--space); }
+body {
+  background: var(--space);
+  color: var(--text);
+  font-family: var(--ui);
+  font-size: 13px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 40px;
+  cursor: crosshair;
+  overflow-x: hidden;
+}
+#stars { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+a { color: var(--link); }
+a:visited { color: var(--visited); }
+a:hover { color: var(--hot); background: #ff0000; }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px dotted var(--hot); outline-offset: 2px; }
+
+.wrap { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+
+.bevel {
+  background: var(--panel);
+  border: 3px solid;
+  border-color: var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi);
+}
+
+.topbar { font-family: var(--ui); font-size: 11px; color: var(--lime); background: #000; border: 1px solid var(--lime); padding: 2px 4px; }
+.topbar marquee { display: block; }
+
+header.banner {
+  text-align: center;
+  padding: 14px 8px 10px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #330099, #000066 60%, #000033);
+}
+.logo {
+  font-family: var(--display);
+  font-size: clamp(34px, 9vw, 64px);
+  line-height: 1;
+  margin: 0;
+  letter-spacing: 1px;
+  background: linear-gradient(180deg, #ffff66 0%, #ff9900 45%, #ff0000 55%, #990000 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 1px #fff;
+  filter: drop-shadow(3px 3px 0 #000) drop-shadow(0 0 8px #ff00ff);
+  text-wrap: balance;
+}
+.tagline { font-family: var(--body); color: var(--hot); font-size: 15px; margin: 6px 0 0; }
+.blink { animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { visibility: hidden; } }
+.rainbow { animation: hue 3s linear infinite; color: #ff0000; }
+@keyframes hue { to { filter: hue-rotate(360deg); } }
+
+.cols { display: flex; gap: 8px; align-items: flex-start; }
+nav.side { flex: 0 0 170px; display: flex; flex-direction: column; gap: 8px; }
+main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+@media (max-width: 600px) {
+  .cols { flex-direction: column; align-items: stretch; }
+  nav.side { flex: none; }
+}
+
+.box-title {
+  font-family: var(--ui); font-weight: bold; font-size: 12px;
+  color: #fff;
+  background: linear-gradient(90deg, #0000cc, #6699ff);
+  padding: 2px 6px;
+  border-bottom: 2px solid var(--bevel-lo);
+}
+.box-body { padding: 8px; }
+
+.navlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.navlist a {
+  display: block; padding: 3px 6px;
+  background: var(--panel-2);
+  border: 2px outset #6666cc;
+  color: var(--hot); text-decoration: none; font-weight: bold; font-size: 12px;
+}
+.navlist a::before { content: "» "; color: var(--lime); }
+.navlist a:hover { border-style: inset; background: #ff0000; color: #fff; }
+.new { color: var(--red); font-size: 9px; font-weight: bold; vertical-align: super; }
+
+.counter { display: inline-flex; gap: 1px; background: #000; padding: 3px; border: 2px inset #666; }
+.counter span {
+  font-family: var(--mono); font-size: 22px; line-height: 1;
+  width: 14px; text-align: center;
+  color: var(--lime); background: #002200;
+  font-variant-numeric: tabular-nums;
+}
+
+.badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.badge {
+  width: 80px; height: 15px; box-sizing: border-box;
+  font: bold 8px/11px var(--ui); text-transform: uppercase;
+  display: flex; overflow: hidden; border: 1px solid #000; outline: 1px solid #999;
+}
+.badge b { background: #000; color: #fff; padding: 1px 3px; }
+.badge i { flex: 1; font-style: normal; padding: 1px 3px; color: #000; text-align: center; }
+
+.welcome { font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.welcome p { margin: 0 0 8px; max-width: 65ch; }
+.uc {
+  display: flex; align-items: center; gap: 10px;
+  background: repeating-linear-gradient(45deg, #ffcc00 0 12px, #000 12px 24px);
+  padding: 6px;
+}
+.uc div { background: #ffcc00; color: #000; font: bold 13px var(--ui); padding: 4px 8px; border: 2px solid #000; }
+.uc .worker { font-size: 28px; line-height: 1; background: none; border: 0; padding: 0; }
+
+table.updates { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.updates td { border: 1px solid #3333aa; padding: 4px 6px; vertical-align: top; }
+table.updates td:first-child { color: var(--hot); white-space: nowrap; font-family: var(--mono); font-size: 16px; }
+table.updates tr:nth-child(odd) td { background: #00004d; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+
+/* Winamp */
+.winamp { background: #232333; border: 2px outset #555; font-family: var(--mono); color: var(--lime); }
+.winamp .wtitle { background: linear-gradient(90deg, #a07700, #ffcc33, #a07700); color: #000; font: bold 10px var(--ui); text-align: center; letter-spacing: 2px; padding: 1px; }
+.winamp .screen { background: #000; margin: 4px; padding: 4px 6px; border: 2px inset #333; display: flex; gap: 8px; align-items: center; }
+.winamp .time { font-size: 28px; line-height: 1; font-variant-numeric: tabular-nums; }
+.winamp .song { flex: 1; min-width: 0; font-size: 16px; overflow: hidden; white-space: nowrap; }
+.viz { display: flex; gap: 2px; align-items: flex-end; height: 22px; }
+.viz i { width: 3px; background: linear-gradient(0deg, #00ff00, #ffff00 70%, #ff0000); height: 30%; }
+.winamp .btns { display: flex; gap: 2px; padding: 0 4px 4px; }
+.winamp button {
+  font: bold 11px var(--ui); background: #c0c0c0; color: #000;
+  border: 2px outset #fff; padding: 1px 6px; cursor: pointer; min-width: 26px;
+}
+.winamp button:active { border-style: inset; }
+.playlist { list-style: none; margin: 0 4px 4px; padding: 2px; background: #000; border: 2px inset #333; font-size: 15px; }
+.playlist li { padding: 0 4px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.playlist li.on { background: #0000c6; color: #fff; }
+
+/* Poll */
+.poll label { display: block; margin: 2px 0; font-size: 12px; cursor: pointer; }
+.bar { height: 10px; background: linear-gradient(90deg, #ff00ff, #00ffff); border: 1px solid #fff; margin: 1px 0 4px; }
+.poll-res div { font-size: 11px; }
+
+.btn98 {
+  font: 12px var(--ui); background: #c0c0c0; color: #000;
+  border: 2px solid; border-color: #fff #404040 #404040 #fff;
+  padding: 3px 12px; cursor: pointer;
+}
+.btn98:active { border-color: #404040 #fff #fff #404040; }
+
+/* Guestbook */
+.gb-form { display: grid; gap: 6px; font-size: 12px; }
+.gb-form input, .gb-form textarea {
+  font: 13px var(--ui); background: #fff; color: #000;
+  border: 2px inset #999; padding: 3px; width: 100%; box-sizing: border-box;
+}
+.gb-entries { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.entry { background: #000044; border: 1px dashed #6666ff; padding: 6px; font-size: 12px; }
+.entry .who { color: var(--hot); font-weight: bold; }
+.entry .when { color: #9999cc; font-size: 10px; }
+.entry p { margin: 4px 0 0; font-family: var(--body); font-size: 14px; overflow-wrap: anywhere; }
+
+.webring { text-align: center; font-size: 12px; }
+.webring .ring { font-family: var(--display); font-size: 20px; color: #ff66ff; letter-spacing: 1px; }
+
+footer { text-align: center; font-size: 10px; color: #9999cc; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+footer .ie { display: inline-flex; gap: 6px; align-items: center; background: #fff; color: #000; padding: 2px 6px; border: 1px solid #000; }
+footer .ie b { color: #0055cc; font-family: "Times New Roman", serif; font-size: 16px; font-style: italic; }
+
+.sparkle { position: fixed; pointer-events: none; z-index: 50; font-size: 12px; color: var(--hot); animation: fall .8s linear forwards; }
+@keyframes fall { to { transform: translateY(24px) scale(.3); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .blink, .rainbow { animation: none; }
+  .sparkle { display: none; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="wrap">
+  <div class="topbar"><marquee scrollamount="4">*** WELCOME 2 MY SITE!!! *** sign my guestbook plz *** NEW: Winamp skins section!!! *** best viewed in 800x600 *** no hotlinking my gifs!! ***</marquee></div>
+
+  <header class="banner bevel">
+    <h1 class="logo">DiMKA's ZoNE 3000</h1>
+    <p class="tagline">~*~ teh coolest place on the WWW since 2001 ~*~</p>
+  </header>
+
+  <div class="cols">
+    <nav class="side">
+      <div class="bevel">
+        <div class="box-title">:: MeNu ::</div>
+        <div class="box-body">
+          <ul class="navlist">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About Me</a></li>
+            <li><a href="#music">My Music</a></li>
+            <li><a href="#poll">Poll <span class="new">NEW!</span></a></li>
+            <li><a href="#guestbook">Guestbook</a></li>
+            <li><a href="#links">Kewl Links</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bevel">
+        <div class="box-title">:: Visitors ::</div>
+        <div class="box-body" style="text-align:center">
+          <div class="counter" id="counter" aria-label="Visitor count"></div>
+          <div style="font-size:10px;margin-top:4px">u r visitor # since 03.03.2003</div>
+        </div>
+      </div>
+
+      <div class="bevel">
+        <div class="box-title">:: Buttons ::</div>
+        <div class="box-body">
+          <div class="badges">
+            <span class="badge"><b>HTML</b><i style="background:#ff9900">4.01</i></span>
+            <span class="badge"><b>WINAMP</b><i style="background:#ffcc00">IT REALLY</i></span>
+            <span class="badge"><b>GET</b><i style="background:#66ccff">FIREBIRD</i></span>
+            <span class="badge"><b>ICQ</b><i style="background:#66ff66">ONLINE</i></span>
+            <span class="badge"><b>MADE ON</b><i style="background:#ff99ff">NOTEPAD</i></span>
+            <span class="badge"><b>56K</b><i style="background:#ff6666">WARNING</i></span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="bevel" id="home">
+        <div class="box-title">:: Welcome!!! ::</div>
+        <div class="box-body welcome">
+          <p>Hi and welcome to my <span class="rainbow"><b>HOMEPAGE</b></span>!!! My name is Dimka and this is my lil corner of the internet. Here u can find stuff about me, my fav music, and lots of kewl links.</p>
+          <p id="about">I am 15 and I like computers, Counter-Strike 1.5, The Matrix and making websites in Notepad. My PC is a Pentium III 800 MHz with 128 MB RAM and a GeForce2 MX!!! I am on dial-up so pls dont put big pics in the guestbook lol.</p>
+          <p class="blink" style="color:var(--red);font-weight:bold">&gt;&gt; Don't forget to sign my guestbook!!! &lt;&lt;</p>
+          <div class="uc"><span class="worker" aria-hidden="true">🚧</span><div>THIS SITE IS UNDER CONSTRUCTION — more pages coming soon!</div></div>
+        </div>
+      </section>
+
+      <section class="bevel">
+        <div class="box-title">:: Updates ::</div>
+        <div class="box-body" style="overflow-x:auto">
+          <table class="updates">
+            <tr><td>14.10.03</td><td>added Winamp player 2 the main page. click play!!</td></tr>
+            <tr><td>02.10.03</td><td>new poll! vote 4 the best game evar</td></tr>
+            <tr><td>21.09.03</td><td>fixed the guestbook (sorry 2 everyone who lost their msg)</td></tr>
+            <tr><td>05.09.03</td><td>new background with STARS. it looks so cool omg</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <div class="grid2">
+        <section class="bevel" id="music">
+          <div class="box-title">:: Now Playing ::</div>
+          <div class="box-body">
+            <div class="winamp">
+              <div class="wtitle">WINAMP</div>
+              <div class="screen">
+                <div class="time" id="time">0:00</div>
+                <div class="viz" id="viz" aria-hidden="true"></div>
+              </div>
+              <div class="screen" style="margin-top:0"><div class="song"><marquee id="song" scrollamount="3">1. Linkin Park - Numb (3:07) ***</marquee></div></div>
+              <div class="btns">
+                <button id="prev" aria-label="Previous track">|◀</button>
+                <button id="play" aria-label="Play">▶</button>
+                <button id="pause" aria-label="Pause">❚❚</button>
+                <button id="next" aria-label="Next track">▶|</button>
+              </div>
+              <ol class="playlist" id="playlist"></ol>
+            </div>
+          </div>
+        </section>
+
+        <section class="bevel poll" id="poll">
+          <div class="box-title">:: Poll: best game? ::</div>
+          <div class="box-body">
+            <form id="pollForm">
+              <label><input type="radio" name="g" value="0" id="g0"> Counter-Strike</label>
+              <label><input type="radio" name="g" value="1" id="g1"> Warcraft III</label>
+              <label><input type="radio" name="g" value="2" id="g2"> GTA: Vice City</label>
+              <label><input type="radio" name="g" value="3" id="g3"> The Sims</label>
+              <label><input type="radio" name="g" value="4" id="g4"> Heroes 3</label>
+              <div style="margin-top:6px"><button class="btn98" type="submit">Vote!</button></div>
+            </form>
+            <div class="poll-res" id="pollRes" hidden></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="bevel" id="guestbook">
+        <div class="box-title">:: Guestbook ::</div>
+        <div class="box-body">
+          <form class="gb-form" id="gbForm">
+            <label for="gbName">Ur name:</label>
+            <input id="gbName" maxlength="30" required placeholder="xX_N1ckname_Xx">
+            <label for="gbMsg">Message:</label>
+            <textarea id="gbMsg" rows="3" maxlength="300" required placeholder="nice site!!! check out mine 2"></textarea>
+            <div><button class="btn98" type="submit">Sign Guestbook</button></div>
+          </form>
+          <div class="gb-entries" id="gbEntries"></div>
+        </div>
+      </section>
+
+      <section class="bevel" id="links">
+        <div class="box-title">:: Kewl Links ::</div>
+        <div class="box-body" style="font-size:12px;line-height:1.8">
+          <a href="https://web.archive.org/web/2003/http://www.winamp.com/" target="_blank" rel="noopener">Winamp.com</a> — it really whips the llama's ass<br>
+          <a href="https://web.archive.org/web/2003/http://www.homestarrunner.com/" target="_blank" rel="noopener">Homestar Runner</a> — trogdor!!!<br>
+          <a href="https://web.archive.org/web/2003/http://www.geocities.com/" target="_blank" rel="noopener">GeoCities</a> — get ur own free site<br>
+          <a href="https://web.archive.org/web/2003/http://www.google.com/" target="_blank" rel="noopener">Google</a> — the best search engine (better than Altavista)
+        </div>
+      </section>
+
+      <section class="bevel webring">
+        <div class="box-body">
+          <div>[ <a href="#home">&lt;&lt; Prev</a> | <a href="#home">Random</a> | <a href="#home">Next &gt;&gt;</a> ]</div>
+          <div class="ring">~ CYBER TEENS WEBRING ~</div>
+          <div>this site is member #0451</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <span class="ie"><b>e</b> Best viewed with Internet Explorer 6.0 at 800x600</span>
+    <div>© 2003 Dimka. All rights reserved. Do NOT steal my layout!!! | Made with Notepad &amp; ❤</div>
+    <div>Last updated: 14 October 2003</div>
+  </footer>
+</div>
+
+<script>
+// Starfield
+(function () {
+  const c = document.getElementById('stars'), x = c.getContext('2d');
+  let stars = [];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size() {
+    c.width = innerWidth; c.height = innerHeight;
+    stars = Array.from({ length: 140 }, () => ({ x: Math.random() * c.width, y: Math.random() * c.height, s: Math.random() * 1.6 + .3, v: Math.random() * .4 + .1 }));
+  }
+  function draw() {
+    x.fillStyle = '#000033'; x.fillRect(0, 0, c.width, c.height);
+    for (const st of stars) {
+      x.fillStyle = Math.random() < .02 ? '#ffff99' : '#ffffff';
+      x.fillRect(st.x, st.y, st.s, st.s);
+      if (!reduce) { st.x -= st.v; if (st.x < 0) st.x = c.width; }
+    }
+    if (!reduce) requestAnimationFrame(draw);
+  }
+  addEventListener('resize', () => { size(); if (reduce) draw(); });
+  size(); draw();
+})();
+
+// Hit counter
+(function () {
+  let n = 13370;
+  try { n = +(localStorage.getItem('z3k-hits') || 13370) + 1; localStorage.setItem('z3k-hits', n); } catch (e) {}
+  document.getElementById('counter').innerHTML = String(n).padStart(6, '0').split('').map(d => '<span>' + d + '</span>').join('');
+})();
+
+// Cursor sparkles
+(function () {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let last = 0;
+  addEventListener('pointermove', e => {
+    const t = performance.now(); if (t - last < 40) return; last = t;
+    const s = document.createElement('span');
+    s.className = 'sparkle'; s.textContent = '✦';
+    s.style.left = e.clientX + 'px'; s.style.top = e.clientY + 'px';
+    s.style.color = ['#ffff00', '#ff66ff', '#00ffff', '#ffffff'][Math.floor(Math.random() * 4)];
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 800);
+  });
+})();
+
+// Winamp
+(function () {
+  const songs = [
+    ['Linkin Park - Numb', 187], ['t.A.T.u. - All The Things She Said', 214], ['Eminem - Lose Yourself', 326],
+    ['Evanescence - Bring Me To Life', 236], ['Darude - Sandstorm', 225], ['Nickelback - How You Remind Me', 223]
+  ];
+  const pl = document.getElementById('playlist'), viz = document.getElementById('viz'),
+        time = document.getElementById('time'), song = document.getElementById('song');
+  const bars = Array.from({ length: 16 }, () => { const i = document.createElement('i'); viz.appendChild(i); return i; });
+  let cur = 0, sec = 0, timer = null, ctx = null, osc = null, gain = null;
+  const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  function render() {
+    pl.innerHTML = songs.map((s, i) => '<li class="' + (i === cur ? 'on' : '') + '" data-i="' + i + '">' + (i + 1) + '. ' + s[0] + ' (' + fmt(s[1]) + ')</li>').join('');
+    song.textContent = (cur + 1) + '. ' + songs[cur][0] + ' (' + fmt(songs[cur][1]) + ') ***';
+    time.textContent = fmt(sec);
+  }
+  // A tiny chiptune so "play" actually plays something
+  const notes = [262, 330, 392, 523, 392, 330, 294, 349, 440, 349];
+  function beep(step) {
+    if (!ctx) return;
+    osc.frequency.setValueAtTime(notes[(step + cur * 3) % notes.length], ctx.currentTime);
+  }
+  let step = 0;
+  function tick() {
+    sec++; if (sec >= songs[cur][1]) { cur = (cur + 1) % songs.length; sec = 0; render(); }
+    time.textContent = fmt(sec);
+  }
+  function animate() {
+    bars.forEach(b => b.style.height = (timer ? 15 + Math.random() * 85 : 10) + '%');
+    if (timer) { beep(step++); }
+  }
+  setInterval(animate, 150);
+  function play() {
+    if (timer) return;
+    timer = setInterval(tick, 1000);
+    try {
+      ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+      ctx.resume();
+      osc = ctx.createOscillator(); gain = ctx.createGain();
+      osc.type = 'square'; gain.gain.value = 0.03;
+      osc.connect(gain).connect(ctx.destination); osc.start();
+    } catch (e) {}
+  }
+  function pause() {
+    clearInterval(timer); timer = null;
+    try { osc && osc.stop(); } catch (e) {}
+    osc = null;
+  }
+  document.getElementById('play').onclick = play;
+  document.getElementById('pause').onclick = pause;
+  document.getElementById('next').onclick = () => { cur = (cur + 1) % songs.length; sec = 0; render(); };
+  document.getElementById('prev').onclick = () => { cur = (cur + songs.length - 1) % songs.length; sec = 0; render(); };
+  pl.onclick = e => { const li = e.target.closest('li'); if (li) { cur = +li.dataset.i; sec = 0; render(); } };
+  render();
+})();
+
+// Poll
+(function () {
+  const names = ['Counter-Strike', 'Warcraft III', 'GTA: Vice City', 'The Sims', 'Heroes 3'];
+  const votes = [412, 287, 356, 143, 198];
+  const form = document.getElementById('pollForm'), res = document.getElementById('pollRes');
+  function show() {
+    const total = votes.reduce((a, b) => a + b, 0);
+    res.innerHTML = names.map((n, i) => {
+      const p = Math.round(votes[i] / total * 100);
+      return '<div>' + n + ' — ' + p + '% (' + votes[i] + ')</div><div class="bar" style="width:' + Math.max(p, 2) + '%"></div>';
+    }).join('') + '<div style="margin-top:4px">Total votes: ' + total + '. Thx 4 voting!!</div>';
+    form.hidden = true; res.hidden = false;
+  }
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = form.querySelector('input:checked');
+    if (!v) return;
+    votes[+v.value]++;
+    try { localStorage.setItem('z3k-vote', v.value); } catch (e) {}
+    show();
+  });
+  try { const v = localStorage.getItem('z3k-vote'); if (v !== null) { votes[+v]++; show(); } } catch (e) {}
+})();
+
+// Guestbook
+(function () {
+  const seed = [
+    { n: 'xX_Sniper_Xx', m: 'nice site!!! the stars r so cool. check out my clan page lol', d: '12.10.2003 22:41' },
+    { n: 'Katya', m: 'hi Dimka!! cute site ^_^ add me on ICQ', d: '09.10.2003 17:05' },
+    { n: 'Anonymous', m: 'how do u make the text blink??? teach me', d: '30.09.2003 01:13' }
+  ];
+  let mine = [];
+  try { mine = JSON.parse(localStorage.getItem('z3k-gb') || '[]'); } catch (e) {}
+  const box = document.getElementById('gbEntries'), form = document.getElementById('gbForm');
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function render() {
+    box.innerHTML = mine.concat(seed).map(e =>
+      '<div class="entry"><span class="who">' + esc(e.n) + '</span> <span class="when">wrote on ' + esc(e.d) + '</span><p>' + esc(e.m) + '</p></div>'
+    ).join('');
+  }
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const n = document.getElementById('gbName').value.trim(), m = document.getElementById('gbMsg').value.trim();
+    if (!n || !m) return;
+    const now = new Date(), p = x => String(x).padStart(2, '0');
+    mine.unshift({ n, m, d: p(now.getDate()) + '.' + p(now.getMonth() + 1) + '.2003 ' + p(now.getHours()) + ':' + p(now.getMinutes()) });
+    try { localStorage.setItem('z3k-gb', JSON.stringify(mine)); } catch (e) {}
+    form.reset(); render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
